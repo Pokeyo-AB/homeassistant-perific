@@ -1,21 +1,61 @@
 {
-    "config": {
-        "abort": {
-            "already_configured": "Device is already configured"
-        },
-        "error": {
-            "cannot_connect": "Failed to connect",
-            "invalid_auth": "Invalid authentication",
-            "unknown": "Unexpected error"
-        },
-        "step": {
-            "user": {
-                "data": {
-                    "host": "Host",
-                    "password": "Password",
-                    "username": "Username"
-                }
-            }
+  "config": {
+    "abort": {
+      "already_configured": "Device is already configured"
+    },
+    "error": {
+      "cannot_connect": "Failed to connect",
+      "invalid_auth": "Invalid authentication",
+      "unknown": "Unexpected error"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "host": "Host",
+          "password": "Password",
+          "username": "Username"
         }
+      }
     }
+  },
+  "entity": {
+    "sensor": {
+      "voltage_l1": {
+        "name": "Voltage L1",
+        "icon": "mdi:flash"
+      },
+      "voltage_l2": {
+        "name": "Voltage L2",
+        "icon": "mdi:flash"
+      },
+      "voltage_l3": {
+        "name": "Voltage L3",
+        "icon": "mdi:flash"
+      },
+      "current_l1": {
+        "name": "Current L1",
+        "icon": "mdi:flash"
+      },
+      "current_l2": {
+        "name": "Current L2",
+        "icon": "mdi:flash"
+      },
+      "current_l3": {
+        "name": "Current L3",
+        "icon": "mdi:flash"
+      },
+      "power_l1": {
+        "name": "Power L1",
+        "icon": "mdi:flash"
+      },
+      "power_l2": {
+        "name": "Power L2",
+        "icon": "mdi:flash"
+      },
+      "power_l3": {
+        "name": "Power L3",
+        "icon": "mdi:flash"
+      }
+    }
+  }
 }

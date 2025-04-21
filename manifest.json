@@ -1,16 +1,15 @@
 {
-  "domain": "pokeyo",
+  "domain": "perific",
+  "version": "0.0.1",
   "name": "Perific Meter",
-  "codeowners": [
-    "@pokeyo-ab"
-  ],
+  "codeowners": ["@pokeyo-ab"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://www.home-assistant.io/integrations/pokeyo",
+  "documentation": "",
   "homekit": {},
   "iot_class": "cloud_polling",
   "quality_scale": "bronze",
-  "requirements": [],
+  "requirements": ["aiohttp==3.11.17", "pydantic==2.11.3"],
   "ssdp": [],
   "zeroconf": []
 }
