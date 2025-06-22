@@ -38,6 +38,33 @@ Replace:
 
 ---
 
+## Sample Configuration
+
+Add the following to your `configuration.yaml`:
+
+```yaml
+utility_meter:
+  monthly_energy:
+    source: sensor.energiforbrukning
+    cycle: monthly
+  daily_energy:
+    source: sensor.energiforbrukning
+    cycle: daily
+
+sensor:
+  - platform: integration
+    name: "Energiförbrukning"
+    unique_id: house_energy_total
+    source: sensor.lastbalancer_perific_lastbalancer_power_total
+    method: left
+    round: 3
+```
+
+- Adjust the sensor names as needed to match your setup.
+- Restart Home Assistant after updating your configuration.
+
+---
+
 **Note:**
 
 - Keep your token secure and do not share it.
