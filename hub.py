@@ -1,5 +1,6 @@
 import logging
 from .perific import Client, Item, LatestItemPackets, Token
+from .perific.client import AuthenticationError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -10,6 +11,8 @@ class Hub:
         self.host = host
         self.client = Client(host)
         self.token: Token = None
+        self.username: str = None
+        self.password: str = None
         
 
     async def authenticate(self, username: str, password: str) -> bool:
@@ -22,6 +25,9 @@ class Hub:
         except Exception as e:
             _LOGGER.error("Error during authentication: %s", e)
             return False
+        self.username = username
+        self.password = password
+        _LOGGER.info("Authentication successful for user: %s", username)
         return True
     
     async def fetch_devices(self) -> list[Item]:
@@ -34,6 +40,13 @@ class Hub:
         try:
             latest_packets = await self.client.getLatestPackets(self.token.token)
             return latest_packets
+        except AuthenticationError:
+            _LOGGER.error("Authentication failed")
+            if not self.username or not self.password:
+                _LOGGER.error("Username or password not set for re-authentication")
+                return None
+            await self.authenticate(self.username, self.password)
+            return await self.client.getLatestPackets(self.token.token)
         except Exception as e:
             _LOGGER.error("Error fetching sensor data: %s", e)
         return None

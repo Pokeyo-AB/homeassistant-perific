@@ -104,6 +104,8 @@ class Client:
                     data = await response.json()
                     latest_packets = [LatestItemPackets(**item) for item in data]
                     return latest_packets
+                elif response.status == 401:
+                    raise AuthenticationError("Unauthorized access")
                 else:
                     raise Exception(f"Failed to get latest packets: {response.status} {response.text}")
     
@@ -123,5 +125,11 @@ class Client:
                     data = await response.json()
                     account_overview = AccountOverviewResponse(**data)
                     return account_overview
+                elif response.status == 401:
+                    raise AuthenticationError("Unauthorized access")
                 else:
                     raise Exception(f"Failed to get account overview: {response.status} {response.text}")
+
+class AuthenticationError(Exception):
+    """Custom exception for authentication errors."""
+    pass
