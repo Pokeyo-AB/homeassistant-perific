@@ -32,21 +32,23 @@ class PerificCoordinator(DataUpdateCoordinator[list[LatestItemPackets]]):
         self.hub = hub
         self.devices: list[Device] = []
 
-    async def setup(self) -> None:  
-        data = await self.hub.fetch_devices()
-        devices = []
-        for item in data:
-            device = Device(
-                id=item.id,
-                name=item.name,
-                type=item.item_type,
-                mac=item.mac_address,
-            )
-            devices.append(device)
-        self.devices = devices
+    async def setup(self) -> None:
+		try:
+            data = await self.hub.fetch_devices()
+            self.devices = [
+                Device(id=item.id, name=item.name, type=item.item_type, mac=item.mac_address)
+                for item in data
+            ]
+        except Exception as e:
+            _LOGGER.exception("Failed to fetch devices: %s", e)
+            self.devices = []
 
     async def update(self) -> list[LatestItemPackets]:
-       return await self.hub.get_sensor_data()
+        try:
+            return await self.hub.get_sensor_data()
+        except Exception as e:
+            _LOGGER.exception("Failed to update sensor data: %s", e)
+            return []
    
     def get_device(self, device_id: int) -> Device | None:
         """Get a device by its ID."""

@@ -331,5 +331,7 @@ class PerificSensor(PerificEntity, SensorEntity):
             return None
         try:
             return self.entity_description.value_func(latest_data.phase_real_time)
-        except Exception:
+        
+        except Exception as e:
+            _LOGGER.exception("Error in native_value computation for sensor '%s' on device '%s': %s", self.entity_description.key, self.device.id, e)
             return None
