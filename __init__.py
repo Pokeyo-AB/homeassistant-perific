@@ -9,6 +9,9 @@ from .hub import Hub
 from .coordinator import PerificCoordinator
 from .const import API_URL
 
+# Pre-import the sensor platform to avoid blocking import_module
+from . import sensor
+
 _PLATFORMS: list[Platform] = [Platform.SENSOR]
 
 type HubConfigEntry = ConfigEntry[PerificCoordinator]  # noqa: F821

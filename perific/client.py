@@ -1,4 +1,5 @@
 import aiohttp
+from typing import Optional, List
 from pydantic import BaseModel, Field
 
 class Token(BaseModel):
@@ -21,17 +22,11 @@ class AccountOverviewResponse(BaseModel):
     items: list[Item] = Field(alias="Items")
 
 class ItemPacketData(BaseModel):
-    dv: int = Field(alias="dv")
-    """
-    Amp
-    """
-    hiavg: list[float] = Field(alias="hiavg")
-    """
-    Voltage
-    """
-    huavg: list[float] = Field(alias="huavg")
-    #himin: list[float] = Field(alias="himin")
-    #himax: list[float] = Field(alias="himax")
+    dv: Optional[int] = Field(default=None, alias="dv")
+    hiavg: Optional[List[float]] = Field(default=None, alias="hiavg")
+    huavg: Optional[List[float]] = Field(default=None, alias="huavg")
+    # himin: Optional[List[float]] = Field(alias="himin")
+    # himax: Optional[List[float]] = Field(alias="himax")
 
 class ItemPacket(BaseModel):
     hdr: int = Field(alias="hdr")
@@ -45,10 +40,10 @@ class ItemPacket(BaseModel):
     data: ItemPacketData = Field(alias="data")
 
 class LatestPackets(BaseModel):
-    phase_day: ItemPacket = Field(alias="PhaseDay")
-    phase_hour: ItemPacket = Field(alias="PhaseHour")
-    phase_minute: ItemPacket = Field(alias="PhaseMinute")
-    phase_real_time: ItemPacket = Field(alias="PhaseRealTime")
+    phase_day: Optional[ItemPacket] = Field(default=None, alias="PhaseDay")
+    phase_hour: Optional[ItemPacket] = Field(default=None, alias="PhaseHour")
+    phase_minute: Optional[ItemPacket] = Field(default=None, alias="PhaseMinute")
+    phase_real_time: Optional[ItemPacket] = Field(default=None, alias="PhaseRealTime")
 
 class LatestItemPackets(BaseModel):
     item_id: int = Field(alias="ItemId")

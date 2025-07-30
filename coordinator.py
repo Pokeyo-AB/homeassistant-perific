@@ -55,10 +55,13 @@ class PerificCoordinator(DataUpdateCoordinator[list[LatestItemPackets]]):
                 return device
         return None
     
+
     def get_device_data(self, device_id: int) -> LatestPackets | None:
         """Get the data for a specific device."""
+        if not self.data:
+            _LOGGER.warning("No data available in coordinator")
+            return None
         for item in self.data:
             if item.item_id == device_id:
                 return item.latest_packets
         return None
-        
