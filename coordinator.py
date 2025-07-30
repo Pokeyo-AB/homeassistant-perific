@@ -33,7 +33,7 @@ class PerificCoordinator(DataUpdateCoordinator[list[LatestItemPackets]]):
         self.devices: list[Device] = []
 
     async def setup(self) -> None:
-		try:
+        try:
             data = await self.hub.fetch_devices()
             self.devices = [
                 Device(id=item.id, name=item.name, type=item.item_type, mac=item.mac_address)
