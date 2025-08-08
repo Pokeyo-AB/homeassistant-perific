@@ -18,7 +18,8 @@ from homeassistant.const import (
     UnitOfElectricCurrent,
 )
 
-from . import HubConfigEntry
+from homeassistant.config_entries import ConfigEntry
+
 from .const import (
     ATTR_POWER_L1,
     ATTR_POWER_L2,
@@ -30,6 +31,15 @@ from .const import (
     ATTR_CURRENT_L2,
     ATTR_CURRENT_L3,
     ATTR_POWER_TOTAL,
+    ATTR_MAC_ADDRESS,
+    ATTR_CREATION_TIME,
+    ATTR_ID,
+    ATTR_ITEM_CATEGORY,
+    ATTR_ITEM_SUB_TYPE,
+    ATTR_ITEM_TYPE,
+    ATTR_NAME,
+    ATTR_SYSTEM_NAME,
+    ATTR_TIME_ZONE
 )
 from .coordinator import PerificCoordinator
 from collections.abc import Callable
@@ -43,6 +53,16 @@ class PerificSensorEntityDescription(SensorEntityDescription):
     value_func: Callable[[ItemPacket], float | None]
 
 
+def safe_get(data, attr, index):
+    try:
+        value = getattr(data, attr)
+        if value and len(value) > index:
+            return value[index]
+    except Exception:
+        return None
+    return None
+
+
 SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
     PerificSensorEntityDescription(
         key=ATTR_VOLTAGE_L1,
@@ -51,7 +71,7 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         suggested_display_precision=0,
-        value_func=lambda data: data.data.huavg[0],
+        value_func=lambda data: safe_get(data.data, "huavg", 0),
     ),
     PerificSensorEntityDescription(
         key=ATTR_VOLTAGE_L2,
@@ -60,7 +80,7 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         suggested_display_precision=0,
-        value_func=lambda data: data.data.huavg[1],
+        value_func=lambda data: safe_get(data.data, "huavg", 1),
     ),
     PerificSensorEntityDescription(
         key=ATTR_VOLTAGE_L3,
@@ -69,7 +89,7 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         suggested_display_precision=0,
-        value_func=lambda data: data.data.huavg[2],
+        value_func=lambda data: safe_get(data.data, "huavg", 2),
     ),
     
     PerificSensorEntityDescription(
@@ -79,7 +99,7 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         suggested_display_precision=1,
-        value_func=lambda data: data.data.hiavg[0],
+        value_func=lambda data: safe_get(data.data, "hiavg", 0),
     ),
     PerificSensorEntityDescription(
         key=ATTR_CURRENT_L2,
@@ -88,7 +108,7 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         suggested_display_precision=1,
-        value_func=lambda data: data.data.hiavg[1],
+        value_func=lambda data: safe_get(data.data, "hiavg", 1),
     ),
     PerificSensorEntityDescription(
         key=ATTR_CURRENT_L3,
@@ -97,7 +117,7 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         suggested_display_precision=1,
-        value_func=lambda data: data.data.hiavg[2],
+        value_func=lambda data: safe_get(data.data, "hiavg", 2),
     ),
     
     
@@ -108,7 +128,11 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfPower.KILO_WATT,
         suggested_display_precision=2,
-        value_func=lambda data: data.data.hiavg[0] * data.data.huavg[0] / 1000,
+        value_func=lambda data: (
+            (safe_get(data.data, "hiavg", 0) or 0)
+            * (safe_get(data.data, "huavg", 0) or 0)
+            / 1000
+        ),
     ),
     PerificSensorEntityDescription(
         key=ATTR_POWER_L2,
@@ -117,7 +141,11 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfPower.KILO_WATT,
         suggested_display_precision=2,
-        value_func=lambda data: data.data.hiavg[1] * data.data.huavg[1] / 1000,
+        value_func=lambda data: (
+            (safe_get(data.data, "hiavg", 1) or 0)
+            * (safe_get(data.data, "huavg", 1) or 0)
+            / 1000
+        ),
     ),
     PerificSensorEntityDescription(
         key=ATTR_POWER_L3,
@@ -126,7 +154,11 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfPower.KILO_WATT,
         suggested_display_precision=2,
-        value_func=lambda data: data.data.hiavg[2] * data.data.huavg[2] / 1000,
+        value_func=lambda data: (
+            (safe_get(data.data, "hiavg", 2) or 0)
+            * (safe_get(data.data, "huavg", 2) or 0)
+            / 1000
+        ),
     ),
     PerificSensorEntityDescription(
         key=ATTR_POWER_TOTAL,
@@ -135,17 +167,90 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfPower.KILO_WATT,
         suggested_display_precision=2,
-        value_func=lambda data: (
-            (data.data.hiavg[0] * data.data.huavg[0] +
-            data.data.hiavg[1] * data.data.huavg[1] +
-            data.data.hiavg[2] * data.data.huavg[2]) / 1000
-        ),
+        value_func=lambda data: sum(
+            (safe_get(data.data, "hiavg", i) or 0)
+            * (safe_get(data.data, "huavg", i) or 0)
+            for i in range(3)
+        )
+        / 1000,
+    ),
+    PerificSensorEntityDescription(
+        key=ATTR_MAC_ADDRESS,
+        translation_key="mac_address",
+        device_class=None,
+        state_class=None,
+        native_unit_of_measurement=None,
+        value_func=lambda data: None,  # Placeholder, not used
+    ),
+        PerificSensorEntityDescription(
+        key=ATTR_CREATION_TIME,
+        translation_key="creation_time",
+        device_class=None,
+        state_class=None,
+        native_unit_of_measurement=None,
+        value_func=lambda data: None,  # Placeholder, not used
+    ),
+    PerificSensorEntityDescription(
+        key=ATTR_ID,
+        translation_key="item_id",
+        device_class=None,
+        state_class=None,
+        native_unit_of_measurement=None,
+        value_func=lambda data: None,  # Placeholder, not used
+    ),
+    PerificSensorEntityDescription(
+        key=ATTR_ITEM_CATEGORY,
+        translation_key="item_category",
+        device_class=None,
+        state_class=None,
+        native_unit_of_measurement=None,
+        value_func=lambda data: None,  # Placeholder, not used
+    ),
+    PerificSensorEntityDescription(
+        key=ATTR_ITEM_SUB_TYPE,
+        translation_key="item_sub_type",
+        device_class=None,
+        state_class=None,
+        native_unit_of_measurement=None,
+        value_func=lambda data: None,  # Placeholder, not used
+    ),
+    PerificSensorEntityDescription(
+        key=ATTR_ITEM_TYPE,
+        translation_key="item_type",
+        device_class=None,
+        state_class=None,
+        native_unit_of_measurement=None,
+        value_func=lambda data: None,  # Placeholder, not used
+    ),
+    PerificSensorEntityDescription(
+        key=ATTR_NAME,
+        translation_key="name",
+        device_class=None,
+        state_class=None,
+        native_unit_of_measurement=None,
+        value_func=lambda data: None,  # Placeholder, not used
+    ),
+    PerificSensorEntityDescription(
+        key=ATTR_SYSTEM_NAME,
+        translation_key="system_name",
+        device_class=None,
+        state_class=None,
+        native_unit_of_measurement=None,
+        value_func=lambda data: None,  # Placeholder, not used
+    ),
+    PerificSensorEntityDescription(
+        key=ATTR_TIME_ZONE,
+        translation_key="time_zone",
+        device_class=None,
+        state_class=None,
+        native_unit_of_measurement=None,
+        value_func=lambda data: None,  # Placeholder, not used
     ),
 )
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: HubConfigEntry,
+    config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Add sensors for passed config_entry in HA."""
@@ -167,6 +272,15 @@ async def async_setup_entry(
                 ATTR_POWER_L2,
                 ATTR_POWER_L3,
                 ATTR_POWER_TOTAL,
+                ATTR_MAC_ADDRESS,
+                ATTR_CREATION_TIME,
+                ATTR_ID,
+                ATTR_ITEM_CATEGORY,
+                ATTR_ITEM_SUB_TYPE,
+                ATTR_ITEM_TYPE,
+                ATTR_NAME,
+                ATTR_SYSTEM_NAME,
+                ATTR_TIME_ZONE
             ])
         
         for sensor_key in SENSOR_TYPES:
@@ -191,7 +305,33 @@ class PerificSensor(PerificEntity, SensorEntity):
     @property 
     def native_value(self) -> float | None:
         """Return the state of the sensor."""
+        key = self.entity_description.key
+        # Device metadata-based sensors
+        if key == ATTR_MAC_ADDRESS:
+            return self.device.mac
+        if key == ATTR_ID:
+            return self.device.id
+        if key == ATTR_NAME:
+            return self.device.name
+        if key == ATTR_SYSTEM_NAME:
+            return getattr(self.device, "system_name", None)
+        if key == ATTR_ITEM_TYPE:
+            return getattr(self.device, "type", None)
+        if key == ATTR_ITEM_SUB_TYPE:
+            return getattr(self.device, "item_sub_type", None)
+        if key == ATTR_ITEM_CATEGORY:
+            return getattr(self.device, "item_category", None)
+        if key == ATTR_TIME_ZONE:
+            return getattr(self.device, "time_zone", None)
+        if key == ATTR_CREATION_TIME:
+            return getattr(self.device, "creation_time", None)
+
         latest_data = self.coordinator.get_device_data(self.device.id)
         if not latest_data:
             return None
-        return self.entity_description.value_func(latest_data.phase_real_time)
+        try:
+            return self.entity_description.value_func(latest_data.phase_real_time)
+        
+        except Exception as e:
+            _LOGGER.exception("Error in native_value computation for sensor '%s' on device '%s': %s", self.entity_description.key, self.device.id, e)
+            return None

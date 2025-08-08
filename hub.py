@@ -48,5 +48,5 @@ class Hub:
             await self.authenticate(self.username, self.password)
             return await self.client.getLatestPackets(self.token.token)
         except Exception as e:
-            _LOGGER.error("Error fetching sensor data: %s", e)
-        return None
+            _LOGGER.exception("Unhandled error in get_sensor_data for user '%s': %s", self.username, e)
+            return None
