@@ -1,0 +1,197 @@
+openapi: 3.0.0
+info:
+  title: Perific API
+  version: 1.0.0
+servers:
+  - url: https://api.enegic.com
+paths:
+  /createtoken:
+    put:
+      summary: Authenticate a user
+      operationId: authenticate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: A token for authentication.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /getaccountoverview:
+    get:
+      summary: Get account overview
+      operationId: getaccountoverview
+      security:
+        - x_authorization: []
+      responses:
+        "200":
+          description: A list of devices associated with the account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountOverviewResponse'
+      parameters:
+        - in: header
+          name: Content-Type
+          schema:
+            type: string
+          required: true
+          example: application/json
+
+  /getlatestpackets:
+    put:
+      summary: Get latest packets for a device
+      operationId: getlatestpackets
+      security:
+        - x_authorization: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                item_id:
+                  type: integer
+      responses:
+        "200":
+          description: The latest packets for the specified device.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LatestItemPackets'
+
+components:
+  securitySchemes:
+    x_authorization:
+      type: apiKey
+      in: header
+      name: X-Authorization
+
+  schemas:
+    AuthResponse:
+      type: object
+      properties:
+        TokenInfo:
+          $ref: '#/components/schemas/TokenInfo'
+
+    TokenInfo:
+      type: object
+      properties:
+        Token:
+          type: string
+          description: The authentication token.
+        Created:
+          type: string
+          format: date-time
+        ValidTo:
+          type: string
+          format: date-time
+
+    Item:
+      type: object
+      properties:
+        ItemId:
+          type: integer
+        Name:
+          type: string
+        SystemName:
+          type: string
+        ItemCategory:
+          type: string
+        ItemType:
+          type: string
+        ItemSubType:
+          type: string
+        MacAddress:
+          type: string
+        TimeZone:
+          type: string
+        firmware:
+          type: string
+        hardware:
+          type: string
+        CreationTime:
+          type: string
+
+    AccountOverviewResponse:
+      type: object
+      properties:
+        Items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+    LatestItemPackets:
+      type: object
+      properties:
+        ItemId:
+          type: integer
+        LatestPackets:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/LatestPackets'
+
+    LatestPackets:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            imin:
+              type: array
+              items:
+                type: number
+            imax:
+              type: array
+              items:
+                type: number
+            iavg:
+              type: array
+              items:
+                type: number
+            qmin:
+              type: array
+              items:
+                type: number
+            qmax:
+              type: array
+              items:
+                type: number
+            huavg:
+              type: array
+              items:
+                type: number
+            hiavg:
+              type: array
+              items:
+                type: number
+            pavg:
+              type: array
+              items:
+                type: number
+            pf:
+              type: array
+              items:
+                type: number
+            freq:
+              type: array
+              items:
+                type: number
+            energy:
+              type: array
+              items:
+                type: number
+          additionalProperties: true
