@@ -1,48 +1,40 @@
 """The Perific Meter integration."""
-
 from __future__ import annotations
 
 import logging
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-from .hub import Hub
+from .client import PerificHub
 from .coordinator import PerificCoordinator
-from .const import API_URL
-
-# Pre-import the sensor platform to avoid blocking import_module
-from . import sensor
+from .const import DOMAIN, API_URL
 
 _LOGGER = logging.getLogger(__name__)
-_PLATFORMS: list[Platform] = [Platform.SENSOR]
 
-type HubConfigEntry = ConfigEntry[PerificCoordinator]  # noqa: F821
+PLATFORMS: list[Platform] = [Platform.SENSOR]
 
-
-# TODO Update entry annotation
-async def async_setup_entry(hass: HomeAssistant, entry: HubConfigEntry) -> bool:
-    """Set up Perific Meter from a config entry."""
-
-    try:
-        hub = Hub(API_URL)
-        logged_in = await hub.authenticate(entry.data["username"], entry.data["password"])
-        if not logged_in:
-            LOGGER.error("Authentication failed for user: %s", entry.data["username"])
-            return False
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Set up Perific integration from a config entry."""
+    _LOGGER.info("Starting setup for Perific integration.")
+    hub = PerificHub(hass, API_URL, entry.data["username"], entry.data["password"])
     
-        entry.runtime_data = PerificCoordinator(hass, hub)
-        await entry.runtime_data.async_config_entry_first_refresh()
-
-        await hass.config_entries.async_forward_entry_setups(entry, _PLATFORMS)
-
-        return True
-    except Exception as e:
-        _LOGGER.exception("Unexpected error during setup: %s", e)
+    # Ensure credentials are valid before starting platforms
+    _LOGGER.debug("Attempting to authenticate with the Perific API.")
+    ok = await hub.authenticate()
+    if not ok:
+        _LOGGER.error("Perific: authentication failed. Please check your credentials.")
         return False
+        
+    _LOGGER.info("Perific: authentication successful. Setting up coordinator.")
+    coordinator = PerificCoordinator(hass, hub)
+    await coordinator.async_config_entry_first_refresh()
 
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    return True
 
-# TODO Update entry annotation
-async def async_unload_entry(hass: HomeAssistant, entry: HubConfigEntry) -> bool:
-    """Unload a config entry."""
-    return await hass.config_entries.async_unload_platforms(entry, _PLATFORMS)
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unload_ok:
+        hass.data[DOMAIN].pop(entry.entry_id, None)
+    return unload_ok

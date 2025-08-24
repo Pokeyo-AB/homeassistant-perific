@@ -1,5 +1,4 @@
 """Config flow for the Perific Meter integration."""
-
 from __future__ import annotations
 
 import logging
@@ -12,8 +11,7 @@ from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 
-from .hub import Hub
-
+from .client import PerificHub
 from .const import DOMAIN, API_URL
 
 _LOGGER = logging.getLogger(__name__)
@@ -25,23 +23,17 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     }
 )
 
-
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
-    hub = Hub(API_URL)
-    if not await hub.authenticate(data[CONF_USERNAME], data[CONF_PASSWORD]):
+    hub = PerificHub(hass, API_URL, data[CONF_USERNAME], data[CONF_PASSWORD])
+    ok = await hub.authenticate()
+    if not ok:
         raise InvalidAuth
     return {"title": f"Perific Cloud ({data[CONF_USERNAME]})"}
 
-
-class ConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Perific Meter."""
-
+class ConfigFlow(ConfigFlow, domain=DOMAIN):  # ✅ fixed class name
     VERSION = 1
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
-        """Handle the initial step."""
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
             try:
@@ -56,9 +48,7 @@ class ConfigFlow(ConfigFlow, domain=DOMAIN):
             else:
                 return self.async_create_entry(title=info["title"], data=user_input)
 
-        return self.async_show_form(
-            step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
-        )
+        return self.async_show_form(step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors)
 
 
 class CannotConnect(HomeAssistantError):

@@ -20,41 +20,33 @@
   },
   "entity": {
     "sensor": {
-      "voltage_l1": {
-        "name": "Voltage L1",
+      "voltage": {
+        "name": "Voltage",
         "icon": "mdi:flash"
       },
-      "voltage_l2": {
-        "name": "Voltage L2",
+      "current": {
+        "name": "Current",
+        "icon": "mdi:current-ac"
+      },
+      "power": {
+        "name": "Power",
         "icon": "mdi:flash"
       },
-      "voltage_l3": {
-        "name": "Voltage L3",
-        "icon": "mdi:flash"
+      "frequency": {
+        "name": "Frequency",
+        "icon": "mdi:sine-wave"
       },
-      "current_l1": {
-        "name": "Current L1",
-        "icon": "mdi:flash"
+      "pf": {
+        "name": "Power Factor",
+        "icon": "mdi:alpha-p-circle"
       },
-      "current_l2": {
-        "name": "Current L2",
-        "icon": "mdi:flash"
+      "energy": {
+        "name": "Energy",
+        "icon": "mdi:lightning-bolt"
       },
-      "current_l3": {
-        "name": "Current L3",
-        "icon": "mdi:flash"
-      },
-      "power_l1": {
-        "name": "Power L1",
-        "icon": "mdi:flash"
-      },
-      "power_l2": {
-        "name": "Power L2",
-        "icon": "mdi:flash"
-      },
-      "power_l3": {
-        "name": "Power L3",
-        "icon": "mdi:flash"
+      "reactive_power": {
+        "name": "Reactive Power",
+        "icon": "mdi:flash-triangle-outline"
       }
     }
   }
