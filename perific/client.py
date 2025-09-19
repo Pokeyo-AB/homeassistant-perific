@@ -23,8 +23,12 @@ class AccountOverviewResponse(BaseModel):
 
 class ItemPacketData(BaseModel):
     dv: Optional[int] = Field(default=None, alias="dv")
+    # Current
     hiavg: Optional[List[float]] = Field(default=None, alias="hiavg")
+    iavg: Optional[List[float]]  = Field(default=None, alias="iavg")
+    # Voltage
     huavg: Optional[List[float]] = Field(default=None, alias="huavg")
+    uavg: Optional[List[float]]  = Field(default=None, alias="uavg")
     # himin: Optional[List[float]] = Field(alias="himin")
     # himax: Optional[List[float]] = Field(alias="himax")
 
