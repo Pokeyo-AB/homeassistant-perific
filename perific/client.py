@@ -25,6 +25,7 @@ class ItemPacketData(BaseModel):
     dv: Optional[int] = Field(default=None, alias="dv")
     hiavg: Optional[List[float]] = Field(default=None, alias="hiavg")
     huavg: Optional[List[float]] = Field(default=None, alias="huavg")
+    hwi: Optional[float] = Field(default=None, alias="hwi")
     # himin: Optional[List[float]] = Field(alias="himin")
     # himax: Optional[List[float]] = Field(alias="himax")
 
