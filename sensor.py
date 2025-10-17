@@ -67,6 +67,14 @@ def safe_get(data, attr, index):
         return None
     return None
 
+def get_current(data, idx):
+    v = safe_get(data.data, "hiavg", idx)
+    return v if v is not None else safe_get(data.data, "iavg", idx)
+
+def get_voltage(data, idx):
+    v = safe_get(data.data, "huavg", idx)
+    return v if v is not None else safe_get(data.data, "uavg", idx)
+
 
 SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
     PerificSensorEntityDescription(
@@ -76,7 +84,7 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         suggested_display_precision=0,
-        value_func=lambda data: safe_get(data.data, "huavg", 0),
+        value_func=lambda data: get_voltage(data, 0),
     ),
     PerificSensorEntityDescription(
         key=ATTR_VOLTAGE_L2,
@@ -85,7 +93,7 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         suggested_display_precision=0,
-        value_func=lambda data: safe_get(data.data, "huavg", 1),
+        value_func=lambda data: get_voltage(data, 1),
     ),
     PerificSensorEntityDescription(
         key=ATTR_VOLTAGE_L3,
@@ -94,7 +102,7 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         suggested_display_precision=0,
-        value_func=lambda data: safe_get(data.data, "huavg", 2),
+        value_func=lambda data: get_voltage(data, 2),
     ),
     
     PerificSensorEntityDescription(
@@ -104,7 +112,7 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         suggested_display_precision=1,
-        value_func=lambda data: safe_get(data.data, "hiavg", 0),
+        value_func=lambda data: get_current(data, 0),
     ),
     PerificSensorEntityDescription(
         key=ATTR_CURRENT_L2,
@@ -113,7 +121,7 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         suggested_display_precision=1,
-        value_func=lambda data: safe_get(data.data, "hiavg", 1),
+        value_func=lambda data: get_current(data, 1),
     ),
     PerificSensorEntityDescription(
         key=ATTR_CURRENT_L3,
@@ -122,7 +130,7 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         suggested_display_precision=1,
-        value_func=lambda data: safe_get(data.data, "hiavg", 2),
+        value_func=lambda data: get_current(data, 2),
     ),
     
     
@@ -134,9 +142,7 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfPower.KILO_WATT,
         suggested_display_precision=2,
         value_func=lambda data: (
-            (safe_get(data.data, "hiavg", 0) or 0)
-            * (safe_get(data.data, "huavg", 0) or 0)
-            / 1000
+            ((get_current(data, 0) or 0) * ((get_voltage(data, 0) or 230.0))) / 1000
         ),
     ),
     PerificSensorEntityDescription(
@@ -147,9 +153,7 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfPower.KILO_WATT,
         suggested_display_precision=2,
         value_func=lambda data: (
-            (safe_get(data.data, "hiavg", 1) or 0)
-            * (safe_get(data.data, "huavg", 1) or 0)
-            / 1000
+            ((get_current(data, 1) or 0) * ((get_voltage(data, 1) or 230.0))) / 1000
         ),
     ),
     PerificSensorEntityDescription(
@@ -160,9 +164,7 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfPower.KILO_WATT,
         suggested_display_precision=2,
         value_func=lambda data: (
-            (safe_get(data.data, "hiavg", 2) or 0)
-            * (safe_get(data.data, "huavg", 2) or 0)
-            / 1000
+            ((get_current(data, 2) or 0) * ((get_voltage(data, 2) or 230.0))) / 1000
         ),
     ),
     PerificSensorEntityDescription(
@@ -173,8 +175,8 @@ SENSOR_TYPES: tuple[PerificSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfPower.KILO_WATT,
         suggested_display_precision=2,
         value_func=lambda data: sum(
-            (safe_get(data.data, "hiavg", i) or 0)
-            * (safe_get(data.data, "huavg", i) or 0)
+            (get_current(data, i) or 0)
+            * (get_voltage(data, i) or 230.0)
             for i in range(3)
         )
         / 1000,
