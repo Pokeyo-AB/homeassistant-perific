@@ -29,6 +29,7 @@ class ItemPacketData(BaseModel):
     # Voltage
     huavg: Optional[List[float]] = Field(default=None, alias="huavg")
     uavg: Optional[List[float]]  = Field(default=None, alias="uavg")
+    hwi: Optional[float] = Field(default=None, alias="hwi")
     # himin: Optional[List[float]] = Field(alias="himin")
     # himax: Optional[List[float]] = Field(alias="himax")
 
